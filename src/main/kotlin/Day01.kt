@@ -1,10 +1,8 @@
-package day01
-
 import java.util.stream.Stream
 import kotlin.math.max
 
 fun main() {
-    val lines = { ResourceReader.read("day01/input.txt") }
+    val lines = { ResourceReader.read("day01.txt") }
 
     println(Day01().runPart1(lines()))
     println(Day01().runPart2(lines()))
