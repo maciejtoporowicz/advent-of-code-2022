@@ -44,7 +44,7 @@ class Day03 {
         lines.forEach RucksackLoop@ { line ->
             val commonItemsForGroupAndLine = mutableSetOf<Char>()
 
-            line.forEach ItemLoop@ { item ->
+            line.forEach { item ->
                 if(elfNumber == 1) {
                     commonItemsForGroupAndLine.add(item)
                 }
