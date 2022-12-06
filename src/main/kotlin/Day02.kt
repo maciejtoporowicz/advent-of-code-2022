@@ -2,7 +2,7 @@ import java.lang.IllegalStateException
 import java.util.stream.Stream
 
 fun main() {
-    val lines = { ResourceReader.read("day02.txt") }
+    val lines = { ResourceReader.readLines("day02.txt") }
 
     println(Day02().runPart01(lines()))
     println(Day02().runPart02(lines()))

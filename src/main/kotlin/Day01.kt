@@ -2,7 +2,7 @@ import java.util.stream.Stream
 import kotlin.math.max
 
 fun main() {
-    val lines = { ResourceReader.read("day01.txt") }
+    val lines = { ResourceReader.readLines("day01.txt") }
 
     println(Day01().runPart1(lines()))
     println(Day01().runPart2(lines()))

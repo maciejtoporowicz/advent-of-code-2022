@@ -2,7 +2,7 @@ import java.util.*
 import java.util.stream.Stream
 
 fun main() {
-    val lines = { ResourceReader.read("day05.txt") }
+    val lines = { ResourceReader.readLines("day05.txt") }
 
     println(Day05().runPart01(lines()))
     println(Day05().runPart02(lines()))
