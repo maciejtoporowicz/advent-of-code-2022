@@ -1,6 +1,5 @@
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.math.BigInteger
 
 internal class Day11Test {
     @Test

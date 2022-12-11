@@ -8,20 +8,24 @@ fun main() {
     println(Day11().runPart02(lines()))
 }
 
-typealias WorryLevel = Int
+typealias WorryLevel = Long
 typealias MonkeyNumber = Int
 
 class Day11 {
-    fun runPart01(lines: Stream<String>): Int {
+    fun runPart01(lines: Stream<String>): Long {
         return run(lines, 3, 20)
     }
 
-    fun runPart02(lines: Stream<String>): Int {
+    fun runPart02(lines: Stream<String>): Long {
         return run(lines, 1, 10000)
     }
 
-    private fun run(lines: Stream<String>, worryLevelDivisor: Int, numOfRounds: Int): Int {
+    private fun run(lines: Stream<String>, worryLevelDivisor: Int, numOfRounds: Int): Long {
         val monkeys = parseMonkeys(lines)
+
+        val lcm = monkeys.values
+            .map { it.test }
+            .fold(0) { acc, value -> if (acc == 0) value else acc * value }
 
         var round = 1
 
@@ -34,30 +38,15 @@ class Day11 {
                         .let { monkey.inspectItemWith(it) }
                         .let { it / worryLevelDivisor }
 
-                    val monkeyToThrowItemTo = monkey.whereToThrowItemWith(worryLevel)
-                        .let { monkeys[it]!! }
+                    val decision = monkey.whereToThrowItemWith(worryLevel)
 
-                    monkeyToThrowItemTo.catchItemWith(worryLevel)
+                    val manageableWorryLevel = if (worryLevel < lcm) worryLevel else lcm + (worryLevel % lcm)
+
+                    monkeys[decision]!!.catchItemWith(manageableWorryLevel)
 
                     itemToInspect = monkey.takeOutNextItem()
                 }
             }
-
-            println("After round $round")
-            monkeys.entries
-                .sortedBy { (k, _) -> k }
-                .forEach { println("Monkey ${it.value.number}: ${it.value.peek().joinToString(separator = ", ")}") }
-            println()
-
-//            if (setOf(1, 20, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000).contains(round)) {
-//                println("After roun $round")
-//                monkeys.values.forEach {
-//                    println("Monkey ${it.number} inspected items ${it.inspections()} times.")
-//                }
-//                println("")
-//                println("===================================================")
-//                println()
-//            }
 
             round++
         }
@@ -76,10 +65,9 @@ class Day11 {
         var monkeyNumber: MonkeyNumber? = null
         var startingItems: List<WorryLevel>? = null
         var operationOperator: String? = null
-        var operationOperand: ((WorryLevel) -> Int)? = null
+        var operationOperand: ((WorryLevel) -> Long)? = null
         var test: Int? = null
         var testTrue: MonkeyNumber? = null
-        var testFalse: MonkeyNumber? = null
 
         lines.forEach { untrimmedLine ->
             val line = untrimmedLine.trim()
@@ -92,7 +80,7 @@ class Day11 {
             } else if (line.startsWith("Starting items")) {
                 startingItems = line.replace("Starting items: ", "")
                     .split(", ")
-                    .map { it.toInt() }
+                    .map { it.toLong() }
             } else if (line.startsWith("Operation")) {
                 line.replace("Operation: new = old ", "")
                     .split(" ")
@@ -100,7 +88,7 @@ class Day11 {
                         operationOperator = args[0]
                         operationOperand = when (args[1]) {
                             "old" -> { worryLevel -> worryLevel }
-                            else -> { _ -> args[1].toInt() }
+                            else -> { _ -> args[1].toLong() }
                         }
                     }
             } else if (line.startsWith("Test")) {
@@ -112,7 +100,7 @@ class Day11 {
                     .replace("If true: throw to monkey ", "")
                     .toInt()
             } else if (line.startsWith("If false")) {
-                testFalse = line
+                val testFalse = line
                     .replace("If false: throw to monkey ", "")
                     .toInt()
 
@@ -124,7 +112,7 @@ class Day11 {
                         inspectionOperator = operationOperator!!,
                         test = test!!,
                         testTrue = testTrue!!,
-                        testFalse = testFalse!!
+                        testFalse = testFalse
                     )
                 )
             }
@@ -136,8 +124,8 @@ class Day11 {
     class Monkey(
         val number: MonkeyNumber,
         private val items: Deque<WorryLevel>,
-        inspectionOperator: String,
-        inspectionOperand: (WorryLevel) -> Int,
+        val inspectionOperator: String,
+        inspectionOperand: (WorryLevel) -> Long,
         val test: Int,
         testTrue: MonkeyNumber,
         testFalse: MonkeyNumber
@@ -149,15 +137,13 @@ class Day11 {
         }
 
         private val whereToThrow: (WorryLevel) -> MonkeyNumber =
-            { worryLevel -> if (worryLevel % test == 0) testTrue else testFalse }
+            { worryLevel -> if (worryLevel % test == 0L) testTrue else testFalse }
 
-        private var inspections = 0
+        private var inspections = 0L
 
-        fun peek() = items.toList()
-
-        fun inspectItemWith(worrylevel: WorryLevel): WorryLevel {
+        fun inspectItemWith(worryLevel: WorryLevel): WorryLevel {
             inspections++
-            return inspect(worrylevel)
+            return inspect(worryLevel)
         }
 
         fun takeOutNextItem(): WorryLevel? = if (items.isEmpty()) null else items.pollFirst()
@@ -167,5 +153,7 @@ class Day11 {
         fun inspections() = inspections
 
         fun whereToThrowItemWith(worryLevel: WorryLevel): MonkeyNumber = whereToThrow(worryLevel)
+
+
     }
 }
